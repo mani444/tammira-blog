@@ -5,6 +5,8 @@ import type { RootStackParamList } from '../types/navigation'
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BlogList'>
 
+const Separator = () => <View style={styles.separator} />
+
 export default function BlogListScreen({ navigation }: Props) {
   const placeholderData = [
     { id: '1', title: 'Sample Blog Title', sub_title: 'Sample Blog Subtitle', author: 'John Doe' },
@@ -20,7 +22,7 @@ export default function BlogListScreen({ navigation }: Props) {
       <FlatList
         data={placeholderData}
         keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={Separator}
         renderItem={({ item }) => (
           <View style={styles.item}>
             <Text style={styles.itemTitle}>{item.title}</Text>
@@ -47,4 +49,3 @@ const styles = StyleSheet.create({
   itemAuthor: { fontSize: 12, color: '#999', marginTop: 6 },
   cta: { marginTop: 8, alignSelf: 'flex-start' },
 })
-
