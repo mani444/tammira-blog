@@ -10,6 +10,7 @@
     "dev:all:android": "concurrently --group --kill-others-on-fail -n db,api,android -c gray,cyan,green \"npm:dev:db\" \"npm:dev:server\" \"npm:dev:android\"",
     "dev:db": "docker compose up mongo -d",
     "dev:server": "npm --workspace apps/server run dev",
+    "dev:api": "concurrently --group --kill-others-on-fail -n db,api -c gray,cyan \"npm:dev:db\" \"npm:dev:server\"",
     "dev:android": "npm --workspace apps/mobile run android",
     "dev:ios": "npm --workspace apps/mobile run ios",
     "lint": "npm run lint:server",
@@ -17,7 +18,8 @@
     "lint:mobile": "npm --workspace apps/mobile run lint",
     "typecheck": "npm --workspace apps/server run typecheck",
     "format": "prettier -w .",
-    "seed": "npm --workspace apps/server run seed"
+    "seed": "npm --workspace apps/server run seed",
+    "test": "npm --workspace apps/server run test"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
