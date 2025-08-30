@@ -5,6 +5,7 @@
  * @format
  */
 
+import React, { useEffect } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
@@ -13,11 +14,13 @@ import RootNavigator from './src/navigation/RootNavigator';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
+  useEffect(() => {
+    StatusBar.setBarStyle(isDarkMode ? 'light-content' : 'dark-content');
+  }, [isDarkMode]);
 
   return (
     <Provider store={store}>
       <SafeAreaProvider>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <RootNavigator />
       </SafeAreaProvider>
     </Provider>
