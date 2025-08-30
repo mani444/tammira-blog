@@ -16,7 +16,8 @@
     "lint:server": "npm --workspace apps/server run lint",
     "lint:mobile": "npm --workspace apps/mobile run lint",
     "typecheck": "npm --workspace apps/server run typecheck",
-    "format": "prettier -w ."
+    "format": "prettier -w .",
+    "seed": "npm --workspace apps/server run seed"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

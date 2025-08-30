@@ -1,0 +1,66 @@
+{
+  "info": {
+    "name": "Tammira Blog API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "c7c9f6de-0000-4000-8000-0000deadbeef"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+      }
+    },
+    {
+      "name": "List Blogs",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/blogs?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "blogs"],
+          "query": [
+            {"key": "page", "value": "1"},
+            {"key": "limit", "value": "10"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter by Tags",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/blogs?tags=tech,javascript",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "blogs"],
+          "query": [
+            {"key": "tags", "value": "tech,javascript"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Blog by ID",
+      "request": {
+        "method": "PUT",
+        "header": [ {"key": "Content-Type", "value": "application/json"} ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Updated Title\",\n  \"tags\": [\"tech\", \"node\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/blogs/{{blogId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "blogs", "{{blogId}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "blogId", "value": "" }
+  ]
+}
+
