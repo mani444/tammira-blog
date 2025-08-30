@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { errorHandler, notFound } from './middleware/error.middleware.js'
+import blogsRouter from './routes/blogs.routes.js'
 
 export function createApp() {
   const app = express()
@@ -11,6 +12,8 @@ export function createApp() {
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok' })
   })
+
+  app.use('/api/blogs', blogsRouter)
 
   // 404 and error handling
   app.use(notFound)

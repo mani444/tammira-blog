@@ -1,5 +1,6 @@
 import { Schema, model, Types, type Model, type InferSchemaType } from 'mongoose'
 import { slugify } from '../utils/slugify.js'
+import './user.model.js' // ensure User model is registered for population
 
 const BlogSchema = new Schema(
   {
@@ -33,4 +34,3 @@ export type Blog = InferSchemaType<typeof BlogSchema>
 export type BlogModel = Model<Blog>
 
 export const Blog = model<Blog, BlogModel>('Blog', BlogSchema)
-
