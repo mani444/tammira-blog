@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import { errorHandler, notFound } from './middleware/error.middleware.js'
 
 export function createApp() {
   const app = express()
@@ -11,6 +12,9 @@ export function createApp() {
     res.json({ status: 'ok' })
   })
 
+  // 404 and error handling
+  app.use(notFound)
+  app.use(errorHandler)
+
   return app
 }
-
