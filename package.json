@@ -5,17 +5,21 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "npm-run-all -p dev:*",
+    "dev": "echo 'Choose a platform: npm run dev:all:ios or npm run dev:all:android' && exit 1",
+    "dev:all:ios": "concurrently --group --kill-others-on-fail -n db,api,ios -c gray,cyan,magenta \"npm:dev:db\" \"npm:dev:server\" \"npm:dev:ios\"",
+    "dev:all:android": "concurrently --group --kill-others-on-fail -n db,api,android -c gray,cyan,green \"npm:dev:db\" \"npm:dev:server\" \"npm:dev:android\"",
     "dev:db": "docker compose up mongo -d",
     "dev:server": "npm --workspace apps/server run dev",
     "dev:android": "npm --workspace apps/mobile run android",
     "dev:ios": "npm --workspace apps/mobile run ios",
-    "lint": "npm-run-all -p lint:*",
+    "lint": "npm run lint:server",
     "lint:server": "npm --workspace apps/server run lint",
     "lint:mobile": "npm --workspace apps/mobile run lint",
+    "typecheck": "npm --workspace apps/server run typecheck",
     "format": "prettier -w ."
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.3.3"
   }
