@@ -1,32 +1,28 @@
 # Tammira Blog (Backend + Mobile)
 
-Full‑stack blog assessment. Backend is a Node.js API (Express + MongoDB + Mongoose). Mobile app (React Native CLI) will consume these endpoints.
+Full‑stack blog application: Node.js API (Express + MongoDB + Mongoose) and a React Native CLI mobile app.
 
-## Quick Start
-- Prereqs: Node 18+, Docker. Copy `.env.example` → `.env`.
-- Install deps: `npm install`
-- Start MongoDB: `npm run dev:db`
+## Run It
+- Prereqs: Node 18+, Docker. Copy `.env.example` → `.env`. Then `npm install`.
+- Android (DB + API + Metro + App): `npm run dev:all:android`
+- iOS (DB + API + Metro + App): `npm run dev:all:ios`
+- Backend only (DB + API): `npm run dev:api`
 - Seed sample data: `npm run seed`
-- Start API (watch): `npm run dev:server`
-- Health: `GET http://localhost:4000/api/health`
 
-## Key Scripts (root)
-- `dev:db`: start MongoDB via Docker
-- `dev:server`: run backend (apps/server) in watch mode
-- `dev:api`: run DB + API together (concurrently)
-- `dev:all:ios` / `dev:all:android`: DB + API + mobile packager (mobile app to be added)
-- `seed`: seed users and blogs
-- `typecheck` / `lint` / `test`: backend TypeScript, lint, and unit tests
+## Backend (API)
+- List blogs with pagination: `GET /api/blogs?page=1&limit=10`
+- Filter by tags (comma-separated): `GET /api/blogs?tags=tech,javascript`
+- Update blog by ID: `PUT /api/blogs/:id` (slug auto-updates when title changes)
+- Response shape includes title, sub_title, content, slug, tags, created_date, modified_date, and author object.
 
-## API Endpoints
-- List blogs: `GET /api/blogs?page=1&limit=10`
-  - Filter by tags: `GET /api/blogs?tags=tech,javascript` (matches blogs containing all tags)
-  - Response: `{ data, page, limit, total }` with blog items shaped as required
-- Update blog: `PUT /api/blogs/:id`
-  - Body (example): `{ "title": "Updated Title", "tags": ["tech", "node"] }`
-  - Slug updates automatically when title changes; duplicate slug → 400
+## Mobile (React Native)
+- Blog list screen shows title, subtitle, and author details.
+- Pagination (infinite scroll) with pull‑to‑refresh.
+- Filter by tags (chip toggles).
+- Search (client-side) across title, subtitle, content, tags, and author.
+- API base URL is configurable via `apps/mobile/app.json` (`extra.apiBaseUrl` or `extra.apiPort`), with platform defaults (Android: `10.0.2.2`, iOS: `localhost`).
 
 ## Notes
-- Database: `SampleBlogs` (see `.env`).
-- Android emulator uses `http://10.0.2.2:<PORT>`; iOS simulator can use `http://localhost:<PORT>`.
-- Postman: import `docs/TammiraBlog.postman_collection.json` and set `baseUrl` to `http://localhost:4000`.
+- Health check: `GET http://localhost:4000/api/health`
+- Database: `SampleBlogs` (see `.env.example`).
+- Postman collection: `docs/TammiraBlog.postman_collection.json` (set `baseUrl` to `http://localhost:4000`).
