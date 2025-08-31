@@ -67,10 +67,23 @@ export default function BlogListScreen({ navigation }: Props) {
     dispatch(setTags(next))
   }
 
+  const resultsText = useMemo(() => {
+    if (total > 0) return `${items.length} / ${total}`
+    if (items.length > 0) return `${items.length}`
+    return '0'
+  }, [items.length, total])
+
+  const filtersText = useMemo(() => {
+    return selectedTags.length ? `Filters: ${selectedTags.join(', ')}` : 'All tags'
+  }, [selectedTags])
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Blogs</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.title}>Blogs</Text>
+          <Text style={styles.subtitle}>{resultsText} results • {filtersText}</Text>
+        </View>
         {selectedTags.length > 0 && <Button title="Clear" onPress={() => dispatch(clearTags())} />}
       </View>
 
@@ -117,6 +130,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   title: { fontSize: 24, fontWeight: '600' },
+  subtitle: { fontSize: 12, color: '#666', marginTop: 2 },
   separator: { height: 12 },
   empty: { textAlign: 'center', color: '#666', marginTop: 24 },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
