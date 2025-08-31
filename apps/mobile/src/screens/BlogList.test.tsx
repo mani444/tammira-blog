@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
 import filtersReducer, { nextPage } from '../features/filters/filtersSlice'
 import BlogListScreen from './BlogList'
-import { ActivityIndicator, FlatList, Pressable, Text } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, Text, TextInput } from 'react-native'
 
 // Mock the RTK Query hook used by BlogList
 jest.mock('../services/blogsApi', () => {
@@ -111,5 +111,37 @@ describe('BlogListScreen', () => {
 
     expect(store.getState().filters.selectedTags).toEqual(['tech'])
     expect(store.getState().filters.page).toBe(1)
+  })
+
+  it('filters list by search query (client-side)', async () => {
+    const now = new Date().toISOString()
+    const data = {
+      data: [
+        { slug: 'node', title: 'Node Basics', sub_title: '', content: '', created_date: now, modified_date: now, tags: ['backend'], author: { _id: '1', first_name: 'Ada', last_name: 'L', bio: '', profile_pic_url: '' } },
+        { slug: 'react', title: 'React Guide', sub_title: '', content: '', created_date: now, modified_date: now, tags: ['frontend'], author: { _id: '2', first_name: 'Grace', last_name: 'H', bio: '', profile_pic_url: '' } },
+      ],
+      page: 1,
+      limit: 10,
+      total: 2,
+    }
+    mockedUseGetBlogsQuery.mockReturnValue({ isLoading: false, isFetching: false, isError: false, data, refetch: jest.fn() })
+
+    const store = makeStore({ filters: { selectedTags: [], page: 1, limit: 10, search: '' } })
+    let tree: ReactTestRenderer.ReactTestRenderer
+    await act(async () => {
+      tree = renderWithStore(<BlogListScreen navigation={navigation} route={route} />, store)
+    })
+
+    const listBefore = tree!.root.findByType(FlatList)
+    expect(listBefore.props.data.length).toBe(2)
+
+    const input = tree!.root.findByType(TextInput)
+    await act(async () => {
+      input.props.onChangeText('node')
+    })
+
+    const listAfter = tree!.root.findByType(FlatList)
+    expect(listAfter.props.data.length).toBe(1)
+    expect(listAfter.props.data[0].slug).toBe('node')
   })
 })

@@ -4,12 +4,14 @@ export type FiltersState = {
   selectedTags: string[]
   page: number
   limit: number
+  search: string
 }
 
 const initialState: FiltersState = {
   selectedTags: [],
   page: 1,
   limit: 10,
+  search: '',
 }
 
 function normalizeTags(tags: string[]): string[] {
@@ -40,9 +42,14 @@ export const filtersSlice = createSlice({
       state.limit = Math.max(1, action.payload)
       state.page = 1
     },
+    setSearch(state, action: PayloadAction<string>) {
+      state.search = action.payload
+    },
+    clearSearch(state) {
+      state.search = ''
+    },
   },
 })
 
-export const { setTags, clearTags, nextPage, resetPagination, setLimit } = filtersSlice.actions
+export const { setTags, clearTags, nextPage, resetPagination, setLimit, setSearch, clearSearch } = filtersSlice.actions
 export default filtersSlice.reducer
-

@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
-import { View, Text, Button, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Pressable, ScrollView } from 'react-native'
+import { View, Text, Button, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Pressable, ScrollView, TextInput } from 'react-native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../types/navigation'
 import { useGetBlogsQuery, type Blog } from '../services/blogsApi'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
-import { clearTags, nextPage, resetPagination, setTags } from '../features/filters/filtersSlice'
+import { clearTags, nextPage, resetPagination, setTags, setSearch, clearSearch } from '../features/filters/filtersSlice'
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BlogList'>
 
@@ -17,7 +17,7 @@ const Tag = ({ label, selected, onPress }: { label: string; selected: boolean; o
 
 export default function BlogListScreen({ navigation }: Props) {
   const dispatch = useAppDispatch()
-  const { selectedTags, page, limit } = useAppSelector((s) => s.filters)
+  const { selectedTags, page, limit, search } = useAppSelector((s) => s.filters)
 
   const { data, isLoading, isFetching, isError, refetch } = useGetBlogsQuery({ page, limit, tags: selectedTags }, { refetchOnMountOrArgChange: true })
 
@@ -67,11 +67,27 @@ export default function BlogListScreen({ navigation }: Props) {
     dispatch(setTags(next))
   }
 
+  const visibleItems = useMemo(() => {
+    if (!search) return items
+    const q = search.toLowerCase()
+    function match(b: Blog) {
+      if (b.title?.toLowerCase().includes(q)) return true
+      if (b.sub_title?.toLowerCase().includes(q)) return true
+      if (b.content?.toLowerCase().includes(q)) return true
+      const name = `${b.author?.first_name ?? ''} ${b.author?.last_name ?? ''}`.trim().toLowerCase()
+      if (name.includes(q)) return true
+      if (Array.isArray(b.tags) && b.tags.some((t) => t.toLowerCase().includes(q))) return true
+      return false
+    }
+    return items.filter(match)
+  }, [items, search])
+
   const resultsText = useMemo(() => {
-    if (total > 0) return `${items.length} / ${total}`
-    if (items.length > 0) return `${items.length}`
+    const count = visibleItems.length
+    if (total > 0) return `${count} / ${total}`
+    if (count > 0) return `${count}`
     return '0'
-  }, [items.length, total])
+  }, [visibleItems.length, total])
 
   const filtersText = useMemo(() => {
     return selectedTags.length ? `Filters: ${selectedTags.join(', ')}` : 'All tags'
@@ -85,6 +101,17 @@ export default function BlogListScreen({ navigation }: Props) {
           <Text style={styles.subtitle}>{resultsText} results • {filtersText}</Text>
         </View>
         {selectedTags.length > 0 && <Button title="Clear" onPress={() => dispatch(clearTags())} />}
+      </View>
+
+      <View style={styles.searchRow}>
+        <TextInput
+          placeholder="Search by title, tag, author"
+          value={search}
+          onChangeText={(t) => dispatch(setSearch(t))}
+          autoCorrect={false}
+          style={styles.searchInput}
+        />
+        {search?.length ? <Button title="X" onPress={() => dispatch(clearSearch())} /> : null}
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tagsRow}>
@@ -102,7 +129,7 @@ export default function BlogListScreen({ navigation }: Props) {
         </View>
       ) : (
         <FlatList
-          data={items}
+          data={visibleItems}
           keyExtractor={(item) => item.slug}
           ItemSeparatorComponent={Separator}
           onEndReached={onEndReached}
@@ -131,6 +158,8 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   title: { fontSize: 24, fontWeight: '600' },
   subtitle: { fontSize: 12, color: '#666', marginTop: 2 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  searchInput: { flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 },
   separator: { height: 12 },
   empty: { textAlign: 'center', color: '#666', marginTop: 24 },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },

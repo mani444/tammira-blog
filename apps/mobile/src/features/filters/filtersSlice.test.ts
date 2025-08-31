@@ -1,7 +1,7 @@
-import reducer, { setTags, clearTags, nextPage, resetPagination, setLimit, type FiltersState } from './filtersSlice'
+import reducer, { setTags, clearTags, nextPage, resetPagination, setLimit, setSearch, clearSearch, type FiltersState } from './filtersSlice'
 
 describe('filtersSlice', () => {
-  const base: FiltersState = { selectedTags: [], page: 1, limit: 10 }
+  const base: FiltersState = { selectedTags: [], page: 1, limit: 10, search: '' }
 
   it('setTags normalizes and resets page', () => {
     const prev: FiltersState = { ...base, page: 3 }
@@ -36,5 +36,18 @@ describe('filtersSlice', () => {
     expect(next.limit).toBe(1)
     expect(next.page).toBe(1)
   })
-})
 
+  it('setSearch updates search without changing page', () => {
+    const prev: FiltersState = { ...base, page: 3 }
+    const next = reducer(prev, setSearch('node'))
+    expect(next.search).toBe('node')
+    expect(next.page).toBe(3)
+  })
+
+  it('clearSearch resets search only', () => {
+    const prev: FiltersState = { ...base, search: 'react', page: 2 }
+    const next = reducer(prev, clearSearch())
+    expect(next.search).toBe('')
+    expect(next.page).toBe(2)
+  })
+})
