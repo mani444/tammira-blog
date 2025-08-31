@@ -1,0 +1,8 @@
+{
+  "name": "TammiraBlog",
+  "displayName": "TammiraBlog",
+  "extra": {
+    "apiBaseUrl": "",
+    "apiPort": 4000
+  }
+}
