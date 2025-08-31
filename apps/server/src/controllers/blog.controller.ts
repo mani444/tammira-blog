@@ -13,10 +13,17 @@ function parseTags(input: unknown): string[] | undefined {
   return tags.length ? Array.from(new Set(tags)) : undefined
 }
 
-export async function listBlogs(req: Request, res: Response, next: NextFunction) {
+export async function listBlogs(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const page = Math.max(1, Number(req.query.page ?? 1) || 1)
-    const limit = Math.max(1, Math.min(100, Number(req.query.limit ?? 10) || 10))
+    const limit = Math.max(
+      1,
+      Math.min(100, Number(req.query.limit ?? 10) || 10),
+    )
     const tags = parseTags(req.query.tags)
 
     const filter: Record<string, unknown> = {}
@@ -41,7 +48,11 @@ export async function listBlogs(req: Request, res: Response, next: NextFunction)
   }
 }
 
-export async function updateBlogById(req: Request, res: Response, next: NextFunction) {
+export async function updateBlogById(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { id } = req.params
     if (!id) throw new BadRequestError('Blog id is required')
@@ -56,7 +67,13 @@ export async function updateBlogById(req: Request, res: Response, next: NextFunc
       throw new BadRequestError('tags must be an array of strings')
     }
 
-    const blog = await Blog.findById(id)
+    let blog = null
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      blog = await Blog.findById(id)
+    } else {
+      blog = await Blog.findOne({ slug: id })
+    }
+
     if (!blog) throw new NotFoundError('Blog not found')
 
     for (const [k, v] of Object.entries(updates)) {
@@ -75,4 +92,3 @@ export async function updateBlogById(req: Request, res: Response, next: NextFunc
     next(err)
   }
 }
-

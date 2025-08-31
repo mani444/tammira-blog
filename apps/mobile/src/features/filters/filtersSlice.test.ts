@@ -11,7 +11,7 @@ describe('filtersSlice', () => {
   })
 
   it('clearTags empties and resets page', () => {
-    const prev: FiltersState = { selectedTags: ['a', 'b'], page: 2, limit: 10 }
+    const prev: FiltersState = { selectedTags: ['a', 'b'], page: 2, limit: 10, search: '' }
     const next = reducer(prev, clearTags())
     expect(next.selectedTags).toEqual([])
     expect(next.page).toBe(1)
