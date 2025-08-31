@@ -1,5 +1,6 @@
+import type { Blog } from '../services/blogsApi'
+
 export type RootStackParamList = {
   BlogList: undefined
-  BlogDetails: { id?: string; title?: string } | undefined
+  BlogDetails: { blog: Blog }
 }
-

@@ -1,4 +1,5 @@
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const path = require('path')
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config')
 
 /**
  * Metro configuration
@@ -6,6 +7,27 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
  *
  * @type {import('@react-native/metro-config').MetroConfig}
  */
-const config = {};
+const projectRoot = __dirname
+const monorepoRoot = path.resolve(__dirname, '../..')
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+const config = {
+  // Ensure Metro can resolve hoisted deps when using npm/yarn workspaces
+  watchFolders: [monorepoRoot],
+  resolver: {
+    nodeModulesPaths: [
+      path.resolve(projectRoot, 'node_modules'),
+      path.resolve(monorepoRoot, 'node_modules'),
+    ],
+    // Some helpers like @babel/runtime can be hoisted. Provide an explicit alias.
+    extraNodeModules: {
+      '@babel/runtime': path.resolve(
+        monorepoRoot,
+        'node_modules',
+        '@babel',
+        'runtime'
+      ),
+    },
+  },
+}
+
+module.exports = mergeConfig(getDefaultConfig(projectRoot), config)

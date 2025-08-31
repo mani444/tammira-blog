@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
-import { View, Text, Button, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Pressable } from 'react-native'
+import { View, Text, Button, StyleSheet, FlatList, ActivityIndicator, RefreshControl, Pressable, ScrollView } from 'react-native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { RootStackParamList } from '../types/navigation'
 import { useGetBlogsQuery, type Blog } from '../services/blogsApi'
@@ -24,10 +24,11 @@ export default function BlogListScreen({ navigation }: Props) {
   const [items, setItems] = useState<Blog[]>([])
   const total = data?.total ?? 0
 
+  const tagsKey = useMemo(() => selectedTags.join(','), [selectedTags])
   // Reset items when tags change or page resets to 1
   useEffect(() => {
     if (page === 1) setItems([])
-  }, [selectedTags.join(','), page])
+  }, [tagsKey, page])
 
   // Append new page results
   useEffect(() => {
@@ -52,7 +53,15 @@ export default function BlogListScreen({ navigation }: Props) {
   }, [canLoadMore, dispatch])
 
   // Simple tag options; can be replaced by dynamic aggregation
-  const tagOptions = useMemo(() => ['tech', 'javascript', 'node', 'mongodb'], [])
+  const tagOptions = useMemo(() => {
+    const set = new Set<string>()
+    for (const b of items) {
+      for (const t of b.tags ?? []) set.add(t)
+    }
+    const arr = Array.from(set)
+    arr.sort()
+    return arr.length ? arr : ['tech', 'javascript', 'mongodb', 'node']
+  }, [items])
   const toggleTag = (t: string) => {
     const next = selectedTags.includes(t) ? selectedTags.filter((x) => x !== t) : [...selectedTags, t]
     dispatch(setTags(next))
@@ -65,11 +74,11 @@ export default function BlogListScreen({ navigation }: Props) {
         {selectedTags.length > 0 && <Button title="Clear" onPress={() => dispatch(clearTags())} />}
       </View>
 
-      <View style={styles.tagsRow}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tagsRow}>
         {tagOptions.map((t) => (
           <Tag key={t} label={t} selected={selectedTags.includes(t)} onPress={() => toggleTag(t)} />
         ))}
-      </View>
+      </ScrollView>
 
       {isLoading && items.length === 0 ? (
         <View style={styles.center}><ActivityIndicator /></View>
@@ -86,7 +95,7 @@ export default function BlogListScreen({ navigation }: Props) {
           onEndReached={onEndReached}
           onEndReachedThreshold={0.5}
           refreshControl={<RefreshControl refreshing={isFetching && page === 1} onRefresh={onRefresh} />}
-          ListFooterComponent={isFetching && page > 1 ? <ActivityIndicator style={{ marginVertical: 16 }} /> : null}
+          ListFooterComponent={isFetching && page > 1 ? <ActivityIndicator style={styles.footerSpinner} /> : null}
           ListEmptyComponent={<Text style={styles.empty}>No blogs found.</Text>}
           renderItem={({ item }) => (
             <View style={styles.item}>
@@ -94,7 +103,7 @@ export default function BlogListScreen({ navigation }: Props) {
               <Text style={styles.itemSubtitle}>{item.sub_title}</Text>
               <Text style={styles.itemAuthor}>{item.author.first_name} {item.author.last_name}</Text>
               <View style={styles.cta}>
-                <Button title="Open" onPress={() => navigation.navigate('BlogDetails', { id: item.slug, title: item.title })} />
+                <Button title="Open" onPress={() => navigation.navigate('BlogDetails', { blog: item })} />
               </View>
             </View>
           )}
@@ -122,4 +131,5 @@ const styles = StyleSheet.create({
   itemSubtitle: { fontSize: 14, color: '#666', marginTop: 2 },
   itemAuthor: { fontSize: 12, color: '#999', marginTop: 6 },
   cta: { marginTop: 8, alignSelf: 'flex-start' },
+  footerSpinner: { marginVertical: 16 },
 })
